@@ -1,0 +1,64 @@
+name: CougarReport Dockerless Scheduled Run
+on:
+
+
+jobs:
+  generate-data:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TWITTER_ENABLED: true
+      TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+      TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+      TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+      TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create and populate .Renviron file
+        run: |
+          echo TWITTER_API_KEY="$TWITTER_API_KEY" >> ~/.Renviron
+          echo TWITTER_API_SECRET="$TWITTER_API_SECRET" >> ~/.Renviron
+          echo TWITTER_ACCESS_TOKEN="$TWITTER_ACCESS_TOKEN" >> ~/.Renviron
+          echo TWITTER_ACCESS_SECRET="$TWITTER_ACCESS_SECRET" >> ~/.Renviron
+        shell: bash    
+      
+      - uses: r-lib/actions/setup-r@master
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+
+      - uses: r-lib/actions/setup-r-dependencies@v1
+        with:
+          cache-version: 2
+          extra-packages: |
+            tidyverse
+            httr
+            jsonlite
+            stringr
+            slackr
+            logging
+            rtweet
+      - name: Run Script
+        run: |
+          source("services.R")
+        shell: Rscript {0}
+      - name: Update last_updated date file
+        run: python ./update_latest.py
+      - name: Push last_updated file
+        uses: test-room-7/action-update-file@v1.5.0
+        with:
+          file-path: last_updated.json
+          commit-msg: "Updated last_updated.json date after latest bot run."
+          github-token: ${{ secrets.GITHUB_TOKEN }}

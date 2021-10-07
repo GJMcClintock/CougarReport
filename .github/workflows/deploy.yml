@@ -1,0 +1,29 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+        - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v1
+      - name: Set repo name as lowercase
+        run: |
+            BASE_REPO_NAME=${{ github.repository }}
+            USER_NAME=${{ github.repository_owner }}
+            USER_NAME="${USER_NAME}/"
+            LOWER_CASE_NAME="${BASE_REPO_NAME,,}"
+            echo REPOSITORY_NAME="${LOWER_CASE_NAME//$USER_NAME}" >> $GITHUB_ENV
+      - name: Docker Build & Push Action
+        uses: mr-smithers-excellent/docker-build-push@v5.6
+        with:
+          image: ${{ env.REPOSITORY_NAME }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          tags: |
+            latest

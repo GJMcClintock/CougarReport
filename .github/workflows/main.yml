@@ -1,0 +1,40 @@
+name: CougarReport Scheduled Run
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+    reporter:
+        runs-on: ubuntu-latest
+        name: Posting latest recruit predictions
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
+          - name: Pull recruit reports and post to Services
+            uses: docker://ghcr.io/gjmcclintock/gjmcclintock/cougarreport:latest
+            env:
+              TARGET_YEAR: "2022"
+              TARGET_SCHOOL: 'BYU'
+              TARGET_RIVALS_PREFIX: 'byu'
+              TARGET_247_PREFIX: "byu"
+              SLACK_ENABLED: false
+              #SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
+              #SLACK_INCOMING_URL_PREFIX: ${{ secrets.SLACK_INCOMING_URL_PREFIX }}
+              #SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+              #SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+              SEND_EMPTY_UPDATES: false
+              TWITTER_ENABLED: true
+              TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+              TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+              TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+              TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          - name: Update last_updated date file
+            run: python ./update_latest.py
+          - name: Push last_updated file
+            uses: test-room-7/action-update-file@v1.5.0
+            with:
+              file-path: last_updated.json
+              commit-msg: "Updated last_updated.json date after latest bot run."
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+
