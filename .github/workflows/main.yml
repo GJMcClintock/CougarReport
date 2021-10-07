@@ -12,7 +12,7 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v2
           - name: Pull recruit reports and post to Services
-            uses: docker://ghcr.io/gjmcclintock/gjmcclintock/cougarreport:latest
+            uses: docker://ghcr.io/gjmcclintock/cougarreport:latest
             env:
               TARGET_YEAR: "2022"
               TARGET_SCHOOL: 'BYU'

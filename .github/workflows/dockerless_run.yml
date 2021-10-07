@@ -39,17 +39,11 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - uses: r-lib/actions/setup-r-dependencies@v1
-        with:
-          cache-version: 2
-          extra-packages: |
-            tidyverse
-            httr
-            jsonlite
-            stringr
-            slackr
-            logging
-            rtweet
+      - name: Install Packages
+        run: |
+          install.packages(c("tidyverse","httr","jsonlite","stringr","logging","rtweet"))
+        shell: Rscript {0}
+      
       - name: Run Script
         run: |
           source("services.R")
