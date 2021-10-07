@@ -23,7 +23,7 @@ jobs:
         with:
           image: cougarreport
           registry: ghcr.io
-          username: ${{ secrets.GITHUB_USERNAME }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
           tags: |
             latest
