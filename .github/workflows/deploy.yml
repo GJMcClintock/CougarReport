@@ -21,9 +21,9 @@ jobs:
       - name: Docker Build & Push Action
         uses: mr-smithers-excellent/docker-build-push@v5.6
         with:
-          image: ${{ env.REPOSITORY_NAME }}
+          image: CougarReport
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.GCHR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
           tags: |
             latest
