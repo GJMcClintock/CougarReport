@@ -129,6 +129,7 @@ if (exists("new_cbs") && nrow(new_cbs) > 0) {
         acc <- round(as.numeric(sub("%", "",forecaster_info[2],fixed=TRUE))/100, digits = 3)*100
         star <- trim(pred$star)
         confidence <- trim(pred$confidence)
+        target_year <- pred$class
         
         player_page <- read_html(pred$plink) %>% html_nodes(".upper-cards") %>% html_nodes(".details") %>%
         html_nodes("li") %>% html_nodes("span") %>% html_text()
