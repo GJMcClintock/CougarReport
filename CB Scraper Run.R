@@ -60,8 +60,8 @@ query_crystal_balls <- function(url) {
     
     player_info$number <- 1:nrow(player_info)
     
-    images <- data.frame(names = image_names, height = as.integer(image_height))
-    teams <- images %>% dplyr::filter(height == 24)
+    images <- data.frame(names = image_names, height = as.integer(image_height), class = image_class)
+    teams <- images %>% dplyr::filter(height == 24 & (is.na(class) |  class != 'old'))
     
     zero <- data.frame(name = span)
     zero <- zero %>% dplyr::slice(31:((nrow(player_info)*14)+31))
@@ -180,6 +180,7 @@ new_cbs <- new_cbs %>%
     group_by(predictor, name, names) %>%
     slice(1) %>%
     ungroup() %>%
-    filter(elapsed >= 0)
+    filter(elapsed >= 0) %>% 
+    filter(names == selected_school)
 
 loginfo(glue("Found {nrow(new_cbs)} Crystal Balls that match given criteria."))
